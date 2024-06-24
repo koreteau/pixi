@@ -1,0 +1,36 @@
+/* Customed responsive for 3 cols*/
+@media (min-width: 100px) {
+    .custom-sm {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .custom-sm-max-w {
+        max-width: 24rem;
+    }
+}
+
+@media (min-width:700px) {
+    .custom-md {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .custom-md-max-w {
+        max-width: 40rem;
+    }
+}
+
+@media (min-width: 1400px) {
+    .custom-lg {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .custom-lg-max-w {
+        max-width: 60rem;
+    }
+}
+
+@media (min-width: 1800px) {
+    .custom-xlg {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .custom-xlg-max-w {
+        max-width: 80rem;
+    }
+}

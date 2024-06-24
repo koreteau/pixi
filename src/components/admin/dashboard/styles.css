@@ -1,0 +1,24 @@
+/* styles.css */
+@media (min-width: 1000px) {
+    .custom-sm {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (min-width:1200px) {
+    .custom-md {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1500px) {
+    .custom-lg {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1700px) {
+    .custom-xlg {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
