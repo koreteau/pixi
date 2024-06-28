@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 
-import { Button, CardBody, CardHeader, CardFooter, Input, Typography } from '@material-tailwind/react';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { Button, CardBody, CardHeader, CardFooter, Input, Typography, Tabs, TabsHeader, Tab } from '@material-tailwind/react';
+import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 
+const TABLE_HEAD = ['ID', "Nom d'utilisateur", 'Nom complet', 'Actif', 'Vendeur'];
+const TABS = [
+    { label: 'Tous les utilisateurs', value: 'all' },
+    { label: 'Vendeurs', value: 'true' },
+    { label: 'Non-vendeurs', value: 'false' },
+];
 
-const TABLE_HEAD = ['ID', 'Nom', 'Prénom', 'Actif'];
 
 
 export function AdminUsers() {
@@ -18,51 +23,45 @@ export function AdminUsers() {
     const [usersPerPage] = useState(20);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const [selectedTab, setSelectedTab] = useState('all');
 
     useEffect(() => {
         const db = firebase.firestore();
         const fetchData = async () => {
+            setLoading(true);
             try {
-                const userSnapshot = await db.collection('users').get();
-                const userData = await Promise.all(
-                    userSnapshot.docs.map(async (doc) => {
-                        const userItem = doc.data();
-                        const historyDoc = await db.collection('users').doc(doc.id).collection('history').where('type', '==', 'creation').limit(1).get();
-                        const creationDate = historyDoc.docs[0]?.data().date;
-                        const creationAuthor = historyDoc.docs[0]?.data().author;
-                        return {
-                            id: doc.id,
-                            ...userItem,
-                            eventDate: creationDate,
-                            authorId: creationAuthor,
-                        };
-                    })
-                );
+                const querySnapshot = await db.collection('users').get();
+                const userData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
                 setUsers(userData);
-                setLoading(false);
             } catch (error) {
                 console.error('Error retrieving data:', error);
-                setLoading(false);
             }
+            setLoading(false);
         };
-
         fetchData();
     }, []);
 
+    const handleTabChange = (value) => {
+        setSelectedTab(value);
+        setCurrentPage(1);
+    };
+
     const filteredUsers = users.filter((user) => {
-        const normalizedLastName = user.lastName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const normalizedFirstName = user.firstName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const normalizedSearchTerm = searchTerm.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        return normalizedLastName.includes(normalizedSearchTerm) || normalizedFirstName.includes(normalizedSearchTerm);
+        const fullNameMatch = user.fullName ? user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        const usernameMatch = user.username ? user.username.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        const matchSeller = selectedTab === 'all' ? true : user.isSeller.toString() === selectedTab;
+        return (fullNameMatch || usernameMatch) && matchSeller;
     });
 
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const paginatedUsers = filteredUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
     const handleSearchInputChange = (e) => {
         setSearchTerm(e.target.value);
     };
-
-    const paginatedUsers = filteredUsers.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
     return (
         <div className="h-full w-full">
@@ -70,76 +69,42 @@ export function AdminUsers() {
                 <div className="mb-8 flex items-center justify-between gap-8">
                     <div>
                         <Typography color="gray" className="mt-1 font-normal">
-                            L'ensemble des utilisateurs
+                            Gestion des utilisateurs
                         </Typography>
+                    </div>
+                    <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                        <Link to='/admin/settings/users/new'>
+                            <Button className="flex items-center gap-3 bg-pixi shadow-none hover:shadow-pixi" size="sm">
+                                <PlusIcon strokeWidth={2} className="h-4 w-4" /> Ajouter un utilisateur
+                            </Button>
+                        </Link>
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+                    <Tabs value={selectedTab} onChange={handleTabChange} className="w-full md:w-1/3">
+                        <TabsHeader className="flex-nowrap">
+                            {TABS.map(({ label, value }) => (
+                                <Tab key={value} value={value} onClick={() => handleTabChange(value)} className="text-sm px-4 py-2 whitespace-nowrap">
+                                    {label}
+                                </Tab>
+                            ))}
+                        </TabsHeader>
+                    </Tabs>
                     <div className="w-full md:w-72">
-                        <Input label="Rechercher" icon={<MagnifyingGlassIcon className="h-5 w-5" />} onChange={handleSearchInputChange} />
+                        <Input label="Recherche" color="orange" icon={<MagnifyingGlassIcon className="h-5 w-5" />} onChange={handleSearchInputChange} />
                     </div>
                 </div>
             </CardHeader>
             <CardBody className="overflow-scroll px-0">
                 {loading ? (
-                    <table className="mt-4 w-full min-w-max table-auto text-left">
-                        <thead>
-                            <tr>
-                                {TABLE_HEAD.map((title) => (
-                                    <th key={title} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">
-                                        <Typography
-                                            variant="small"
-                                            color="blue-gray"
-                                            className="font-normal leading-none opacity-70"
-                                        >
-                                            {title}
-                                        </Typography>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <td className='p-4'>
-                                <div className="flex items-center gap-3">
-                                    <Typography as="div" variant="paragraph" className="mb-2 h-2 w-60 rounded-full bg-gray-300">
-                                        &nbsp;
-                                    </Typography>
-                                </div>
-                            </td>
-                            <td className='p-4'>
-                                <div className="flex items-center gap-3">
-                                    <Typography as="div" variant="paragraph" className="mb-2 h-2 w-60 rounded-full bg-gray-300">
-                                        &nbsp;
-                                    </Typography>
-                                </div>
-                            </td>
-                            <td className='p-4'>
-                                <div className="flex items-center gap-3">
-                                    <Typography as="div" variant="paragraph" className="mb-2 h-2 w-60 rounded-full bg-gray-300">
-                                        &nbsp;
-                                    </Typography>
-                                </div>
-                            </td>
-                            <td className='p-4'>
-                                <div className="flex items-center gap-3">
-                                    <Typography as="div" variant="paragraph" className="mb-2 h-2 w-60 rounded-full bg-gray-300">
-                                        &nbsp;
-                                    </Typography>
-                                </div>
-                            </td>
-                        </tbody>
-                    </table>
+                    <div>Loading...</div>
                 ) : (
                     <table className="mt-4 w-full min-w-max table-auto text-left">
                         <thead>
                             <tr>
                                 {TABLE_HEAD.map((title) => (
                                     <th key={title} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">
-                                        <Typography
-                                            variant="small"
-                                            color="blue-gray"
-                                            className="font-normal leading-none opacity-70"
-                                        >
+                                        <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
                                             {title}
                                         </Typography>
                                     </th>
@@ -147,44 +112,21 @@ export function AdminUsers() {
                             </tr>
                         </thead>
                         <tbody>
-                            {paginatedUsers.map(({ id, lastName, firstName, active }, index) => {
-                                const isLast = index === paginatedUsers.length - 1;
-                                const classes = isLast ? 'p-4' : 'p-4 border-b border-blue-gray-50';
-                                return (
-                                    <tr key={id}>
-                                        <td className={classes}>
-                                            <Link to={`/settings/users/${id}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <Typography variant="small" color="blue-gray" className="font-normal">
-                                                        {id}
-                                                    </Typography>
-                                                </div>
-                                            </Link>
-                                        </td>
-                                        <td className={classes}>
-                                            <div className="flex flex-col">
-                                                <Typography variant="small" color="blue-gray" className="font-normal">
-                                                    {lastName}
-                                                </Typography>
-                                            </div>
-                                        </td>
-                                        <td className={classes}>
-                                            <div className="flex flex-col">
-                                                <Typography variant="small" color="blue-gray" className="font-normal">
-                                                    {firstName}
-                                                </Typography>
-                                            </div>
-                                        </td>
-                                        <td className={classes}>
-                                            <div className="flex flex-col">
-                                                <Typography variant="small" color="blue-gray" className="font-normal">
-                                                    {active ? 'Oui' : 'Non'}
-                                                </Typography>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {paginatedUsers.map((user) => (
+                                <tr key={user.id}>
+                                    <td className="p-4">
+                                        <Link to={`/admin/settings/users/${user.id}`}>
+                                            <Typography variant="small" className="font-normal">
+                                                {user.id}
+                                            </Typography>
+                                        </Link>
+                                    </td>
+                                    <td className="p-4"><Typography variant="small" className="font-normal">{user.username}</Typography></td>
+                                    <td className="p-4"><Typography variant="small" className="font-normal">{user.fullName}</Typography></td>
+                                    <td className="p-4"><Typography variant="small" className="font-normal">{user.isActive ? 'Oui' : 'Non'}</Typography></td>
+                                    <td className="p-4"><Typography variant="small" className="font-normal">{user.isSeller ? 'Oui' : 'Non'}</Typography></td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 )}
@@ -195,17 +137,17 @@ export function AdminUsers() {
                 </Typography>
                 <div className="flex gap-2">
                     <Button
-                        variant="outlined"
+                        className='bg-pixi shadow-none hover:shadow-pixi'
                         size="sm"
-                        onClick={() => setCurrentPage(currentPage - 1)}
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
                     >
                         Précédent
                     </Button>
                     <Button
-                        variant="outlined"
+                        className='bg-pixi shadow-none hover:shadow-pixi'
                         size="sm"
-                        onClick={() => setCurrentPage(currentPage + 1)}
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
                     >
                         Suivant
