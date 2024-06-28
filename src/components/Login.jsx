@@ -36,8 +36,8 @@ export function LoginCard() {
             <Card className="w-96 my-[3rem]">
                 <CardBody className="flex flex-col gap-4">
                     <img src={logo} />
-                    <Input label="Email" size="lg" type="email" color="lightBlue" value={email} onChange={(event) => setEmail(event.target.value)} />
-                    <Input label="Mot de passe" size="lg" type="password" color="lightBlue" value={password} onChange={(event) => setPassword(event.target.value)} />
+                    <Input label="Email" size="lg" type="email" color="orange" value={email} onChange={(event) => setEmail(event.target.value)} />
+                    <Input label="Mot de passe" size="lg" type="password" color="orange" value={password} onChange={(event) => setPassword(event.target.value)} />
                 </CardBody>
                 <CardFooter className="pt-0">
                     <Button onClick={(event) => { signInWithEmailAndPasswordHandler(event, email, password) }} className="bg-pixi hover:shadow-none" fullWidth>
