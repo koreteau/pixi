@@ -1,272 +1,160 @@
 import React, { useState, useEffect } from 'react';
 
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
-import { Card, Button, Typography, CardHeader, CardBody, Input, Timeline, TimelineItem, TimelineConnector, TimelineIcon, TimelineHeader, Spinner, Switch } from '@material-tailwind/react';
-import { ArrowLeftIcon, TrashIcon, ArrowPathIcon, PlusIcon, ArrowDownTrayIcon, UserIcon } from '@heroicons/react/24/outline';
+import { Button, Typography, Input, Switch, CardHeader, CardBody } from '@material-tailwind/react';
+import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 import firebase from 'firebase/compat/app';
+import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
 
 
 
-export function UserPage() {
+export function AdminSinglePageUser() {
     const { id } = useParams();
     const [selectedUser, setSelectedUser] = useState(null);
     const [editMode, setEditMode] = useState(false);
-    const [editedLastName, setEditedLastName] = useState('');
-    const [editedFirstName, setEditedFirstName] = useState('');
-    const [editedActive, setEditedActive] = useState(false);
-    const [historyItems, setHistoryItems] = useState([]);
-    const [activityItems, setActivityItems] = useState([]);
-    const [userIUD, setUserIUD] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [fullName, setFullName] = useState('');
+    const [username, setUsername] = useState('');
+    const [birthdate, setBirthdate] = useState(null);
+    const [isActive, setIsActive] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isSeller, setIsSeller] = useState(false);
+    const [idNumber, setIdNumber] = useState('');
+    const [profilePicture, setProfilePicture] = useState('');
+    const [profilePictureFile, setProfilePictureFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
+    const [isModified, setIsModified] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const firestore = firebase.firestore();
+        const storageRef = firebase.storage().ref();
+
         const fetchData = async () => {
             try {
                 const userDoc = await firestore.collection('users').doc(id).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     setSelectedUser(userData);
-                    setEditedLastName(userData.lastName);
-                    setEditedFirstName(userData.firstName);
-                    setEditedActive(userData.active);
+                    setFullName(userData.fullName);
+                    setUsername(userData.username);
+                    setBirthdate(userData.birthdate);
+                    setIsActive(userData.isActive);
+                    setIsAdmin(userData.isAdmin);
+                    setIsSeller(userData.isSeller);
+                    setIdNumber(userData.idNumber || '');
+                    setProfilePicture(userData.profilePicture ? `img/userPicture/${userData.profilePicture}` : '');
+
+                    if (userData.profilePicture) {
+                        try {
+                            const imgRef = storageRef.child(`img/userPicture/${userData.profilePicture}`);
+                            const imgUrl = await imgRef.getDownloadURL();
+                            setPreviewUrl(imgUrl);
+                        } catch (error) {
+                            console.error('Erreur lors de la récupération de l\'URL de l\'image de profil :', error);
+                        }
+                    }
                 }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Erreur lors de la récupération des données utilisateur :', error);
             }
-            setLoading(false);
         };
+
         fetchData();
     }, [id]);
 
-    useEffect(() => {
-        const firestore = firebase.firestore();
-        const fetchHistory = async () => {
-            try {
-                const historySnapshot = await firestore.collection('users').doc(id).collection('history').orderBy('date', 'desc').get();
-                const historyData = historySnapshot.docs.map(doc => doc.data());
-                setHistoryItems(historyData);
-            } catch (error) {
-                console.error('Error fetching history:', error);
-            }
-        };
-        fetchHistory();
-
-        const fetchActivity = async () => {
-            try {
-                const activitySnapshot = await firestore.collection('users').doc(id).collection('activity').get();
-                const activityPromises = activitySnapshot.docs.map(async doc => {
-                    const activityData = doc.data();
-                    const activityRefPath = activityData.doc;
-                    if (activityRefPath) {
-                        const activityDoc = await firestore.doc(activityRefPath).get();
-                        const activityDetails = activityDoc.data();
-                        const pathSegments = activityRefPath.split('/');
-                        const docType = pathSegments[0];
-                        const docId = pathSegments[1];
-                        const docSnapshot = await firestore.collection(docType).doc(docId).get();
-                        const docNameData = docSnapshot.data().title;
-                        const docLinkData = docType + '/' + docId
-                        return { ...activityData, details: activityDetails, docType, docName: docNameData, link: docLinkData };
-                    }
-                    return activityData;
-                });
-                const activityData = await Promise.all(activityPromises);
-                activityData.sort((a, b) => {
-                    const dateA = a.details?.date?.toDate() || new Date(0);
-                    const dateB = b.details?.date?.toDate() || new Date(0);
-                    return dateB - dateA;
-                });
-                setActivityItems(activityData);
-            } catch (error) {
-                console.log('Error fetching activity:', error);
-            }
-        };
-        fetchActivity();
-    }, [id]);
-
-    useEffect(() => {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            setUserIUD(user.uid);
+    const handleSaveUserChanges = async () => {
+        if (!isModified) {
+            alert('Aucune modification détectée.');
+            return;
         }
-    }, []);
 
-    const handleLastNameChange = (e) => setEditedLastName(e.target.value);
-    const handleFirstNameChange = (e) => setEditedFirstName(e.target.value);
-    const handleActiveChange = (e) => setEditedActive(e.target.checked);
-
-    const handleSaveChanges = () => {
         const db = firebase.firestore();
+        const storageRef = firebase.storage().ref();
+
+        let img = selectedUser.profilePicture || '';
+        if (profilePictureFile) {
+            const imageExtension = profilePictureFile.name.split('.').pop();
+            const fileRef = storageRef.child(`img/userPicture/${id}.${imageExtension}`);
+            await fileRef.put(profilePictureFile);
+            img = `${id}.${imageExtension}`;
+        }
+
         const updatedData = {
-            lastName: editedLastName,
-            firstName: editedFirstName,
-            active: editedActive,
+            fullName,
+            username,
+            birthdate,
+            isActive,
+            isAdmin,
+            isSeller,
+            idNumber: isSeller ? idNumber : firebase.firestore.FieldValue.delete(),
+            profilePicture: img,
         };
 
         db.collection('users').doc(id).update(updatedData)
             .then(() => {
                 setEditMode(false);
-                alert('Mise à jour des données avec succès !');
-                const historyRef = db.collection('users').doc(id).collection('history').doc();
-                const historyData = {
-                    author: userIUD,
-                    date: firebase.firestore.FieldValue.serverTimestamp(),
-                    type: 'accountUpdate'
-                };
-                historyRef.set(historyData).then(() => {
-                    console.log('Historique mis à jour avec succès !');
-                }).catch((error) => {
-                    console.error('Erreur lors de la mise à jour de l\'historique:', error);
-                });
+                alert('Données utilisateur mises à jour avec succès !');
+                navigate('/admin/users');
             })
             .catch((error) => {
-                console.log('Erreur lors de l\'enregistrement des modifications:', error);
+                alert('Erreur lors de la mise à jour des données utilisateur : ' + error.message);
             });
+
+        setIsModified(false);
     };
 
-    const handleDeleteUser = (userId) => {
-        const db = firebase.firestore();
-        const updatedData = {
-            active: false
-        };
+    const handleDeleteUser = () => {
+        if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+            return;
+        }
 
-        db.collection('users').doc(userId).update(updatedData)
+        const db = firebase.firestore();
+        db.collection('users').doc(id).delete()
             .then(() => {
                 setEditMode(false);
-                alert('Suppression avec succès !');
-                const historyRef = db.collection('users').doc(userId).collection('history').doc();
-                const historyData = {
-                    author: userIUD,
-                    date: firebase.firestore.FieldValue.serverTimestamp(),
-                    type: 'accountDelete'
-                };
-                historyRef.set(historyData).then(() => {
-                    console.log('Historique mis à jour avec succès !');
-                }).catch((error) => {
-                    console.error('Erreur lors de la suppression :', error);
-                });
+                alert('Utilisateur supprimé avec succès !');
+                navigate('/admin/users');
             })
             .catch((error) => {
-                alert('Erreur lors de la suppression :', error);
+                alert('Erreur lors de la suppression de l\'utilisateur : ' + error.message);
             });
     };
 
-    const getAccountEventTypeLabel = (type) => {
-        switch (type) {
-            case 'accountUpdate':
-                return 'Mise à jour du compte';
-            case 'accountCreation':
-                return 'Création du compte';
-            case 'accountDelete':
-                return 'Suppression du compte';
-            case 'accountRecovery':
-                return 'Compte remis en ligne';
-            default:
-                return '';
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProfilePictureFile(file);
+            setIsModified(true);
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    const getAccountEventIconColor = (type) => {
-        switch (type) {
-            case 'accountUpdate':
-                return '';
-            case 'accountCreation':
-                return 'green';
-            case 'accountDelete':
-                return 'red';
-            case 'accountRecovery':
-                return 'orange';
-            default:
-                return '';
-        }
+    const handleStatusChange = (newStatus) => {
+        setIsActive(newStatus === 'active');
+        setIsModified(true);
     };
-
-    const getAccountEventIcon = (type) => {
-        switch (type) {
-            case 'accountUpdate':
-                return <ArrowPathIcon className="h-5 w-5" />;
-            case 'accountCreation':
-                return <UserIcon className="h-5 w-5" />;
-            case 'accountDelete':
-                return <TrashIcon className="h-5 w-5" />;
-            case 'accountRecovery':
-                return <ArrowDownTrayIcon className="h-5 w-5" />;
-            default:
-                return null;
-        }
-    };
-
-
-    const getEventTypeLabel = (type) => {
-        switch (type) {
-            case 'update':
-                return 'Mise à jour de :';
-            case 'creation':
-                return 'Création de :';
-            case 'delete':
-                return 'Suppression de :';
-            case 'recovery':
-                return 'Remise en ligne de :';
-            default:
-                return 'vide';
-        }
-    };
-
-    const getEventIconColor = (type) => {
-        switch (type) {
-            case 'update':
-                return '';
-            case 'creation':
-                return 'green';
-            case 'delete':
-                return 'red';
-            case 'recovery':
-                return 'orange';
-            default:
-                return '';
-        }
-    };
-
-    const getEventIcon = (type) => {
-        switch (type) {
-            case 'update':
-                return <ArrowPathIcon className="h-5 w-5" />;
-            case 'creation':
-                return <PlusIcon className="h-5 w-5" />;
-            case 'delete':
-                return <TrashIcon className="h-5 w-5" />;
-            case 'recovery':
-                return <ArrowDownTrayIcon className="h-5 w-5" />;
-            default:
-                return null;
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className='flex flex-col items-center justify-center min-h-screen'>
-                <Spinner className="h-20 w-20" />
-            </div>
-        );
-    }
 
     return (
         <div>
-            <Card className="h-full w-full">
+            <div className="h-full w-full">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-8 grid items-center justify-between gap-8 sm:grid-cols-1 md:grid-cols-2">
-                        <div className='flex'>
-                            <Link to='/settings/users'>
-                                <Button variant="text" onClick={() => { setEditMode(false) }}>
-                                    <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" />
+                        <div className='flex items-center'>
+                            <Link to='/admin/users'>
+                                <Button variant="text" className='hover:bg-none' onClick={() => { setEditMode(false) }}>
+                                    <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" color='orange' />
                                 </Button>
                             </Link>
                             <Typography color="gray" className="mt-1 font-normal">
-                                Utilisateur : {selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : 'Chargement...'}
+                                Utilisateur : {selectedUser ? selectedUser.username : 'Chargement...'}
                             </Typography>
                         </div>
                         <div className="flex shrink-0 gap-2 sm:flex-row md:justify-end">
@@ -275,16 +163,16 @@ export function UserPage() {
                                     <Button variant="secondary" color='red' onClick={() => setEditMode(false)}>
                                         Annuler
                                     </Button>
-                                    <Button variant="success" onClick={handleSaveChanges}>
-                                        Enregistrer
+                                    <Button variant="gradient" color="green" onClick={handleSaveUserChanges}>
+                                        Sauvegarder
                                     </Button>
                                 </>
                             ) : (
                                 <>
-                                    <Button variant="primary" onClick={() => setEditMode(true)}>
+                                    <Button className='bg-pixi hover:shadow-none' onClick={() => setEditMode(true)}>
                                         Modifier
                                     </Button>
-                                    <Button variant="outlined" color="red" onClick={() => handleDeleteUser(id)}>
+                                    <Button variant="outlined" color="red" onClick={() => handleDeleteUser()}>
                                         <TrashIcon strokeWidth={2} className="h-4 w-4" />
                                     </Button>
                                 </>
@@ -295,85 +183,67 @@ export function UserPage() {
                 <CardBody>
                     {selectedUser ? (
                         <div>
-                            <div>
-                                <Typography>ID :</Typography>
-                                <Input value={id} disabled />
+                            <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
+                                <div className=' gap-1 w-full'>
+                                    <Typography>Nom complet :</Typography>
+                                    <Input color="orange" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={!editMode} />
+                                </div>
+                                <div className=' gap-1 w-full'>
+                                    <Typography>Nom d'utilisateur :</Typography>
+                                    <Input color="orange" value={username} onChange={(e) => setUsername(e.target.value)} disabled={!editMode} />
+                                </div>
                             </div>
                             <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
-                                <div className='gap-1 w-full'>
-                                    <Typography>Nom :</Typography>
-                                    <Input value={editedLastName} onChange={handleLastNameChange} disabled={!editMode} />
+                                <div className='py-1'>
+                                    <div className="flex items-center gap-3 pb-2">
+                                        <Typography>Date de naissance :</Typography>
+                                        <Input type="date" color="orange" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} disabled={!editMode} />
+                                    </div>
                                 </div>
-                                <div className='gap-1 w-full'>
-                                    <Typography>Prénom :</Typography>
-                                    <Input value={editedFirstName} onChange={handleFirstNameChange} disabled={!editMode} />
+                                <div className='py-1'>
+                                    <div className="flex items-center gap-3 pb-2">
+                                        <Typography>Statut :</Typography>
+                                        <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} disabled={!editMode} />
+                                    </div>
                                 </div>
                             </div>
-                            <div className='gap-5 mt-5 flex'>
-                                <Typography>Actif :</Typography>
-                                <Switch type="checkbox" checked={editedActive} onChange={handleActiveChange} disabled={!editMode} />
+                            <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
+                                <div className='py-1'>
+                                    <div className="flex items-center gap-3 pb-2">
+                                        <Typography>Administrateur :</Typography>
+                                        <Switch checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} disabled={!editMode} />
+                                    </div>
+                                </div>
+                                <div className='py-1'>
+                                    <div className="flex items-center gap-3 pb-2">
+                                        <Typography>Vendeur :</Typography>
+                                        <Switch checked={isSeller} onChange={(e) => setIsSeller(e.target.checked)} disabled={!editMode} />
+                                    </div>
+                                </div>
+                            </div>
+                            {isSeller && (
+                                <div className='mt-5'>
+                                    <Typography>Numéro d'identification :</Typography>
+                                    <Input color="orange" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} disabled={!editMode} />
+                                </div>
+                            )}
+                            <div className='mt-5'>
+                                <Typography>Photo de profil :</Typography>
+                                <div className="relative mb-4">
+                                    {previewUrl && <img src={previewUrl} alt="Aperçu" className="w-full h-48 object-cover" />}
+                                    <label className="cursor-pointer flex flex-col items-center mt-2">
+                                        <ArrowUpTrayIcon className="h-10 w-10 text-gray-400" />
+                                        <input type="file" className="hidden" onChange={handleImageUpload} disabled={!editMode} />
+                                        <span className="text-gray-400">Télécharger une image</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     ) : (
-                        <Typography>Chargement...</Typography>
+                        <Typography className="text-center mt-8">Chargement...</Typography>
                     )}
-                    <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
-                        <div className='gap-1 w-full'>
-                            <Typography>Historique :</Typography>
-                            <div className="w-full pl-5 pr-0 pt-10">
-                                <Timeline>
-                                    {historyItems.map((item, index) => (
-                                        <TimelineItem key={index} className="h-28">
-                                            {index !== historyItems.length - 1 && <TimelineConnector className="!w-[78px]" />}
-                                            <TimelineHeader className="relative rounded-xl border border-blue-gray-50 bg-white py-3 pl-4 pr-8 shadow-lg shadow-blue-gray-900/5">
-                                                <TimelineIcon className="p-3" variant="ghost" color={getAccountEventIconColor(item.type)}>
-                                                    {getAccountEventIcon(item.type)}
-                                                </TimelineIcon>
-                                                <div className="flex flex-col gap-1">
-                                                    <Typography variant="h6" color="blue-gray">
-                                                        {getAccountEventTypeLabel(item.type)}
-                                                    </Typography>
-                                                    <Typography variant="small" color="gray" className="font-normal">
-                                                        Le {item.date && item.date.toDate ? new Date(item.date.toDate()).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''} à {item.date && item.date.toDate ? new Date(item.date.toDate()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''} par {item ? `${item.author}` : ''}
-                                                    </Typography>
-                                                </div>
-                                            </TimelineHeader>
-                                        </TimelineItem>
-                                    ))}
-                                </Timeline>
-                            </div>
-                        </div>
-                        <div className='gap-1 w-full'>
-                            <Typography>Activité de l'utilisateur :</Typography>
-                            <div className="w-full pl-5 pr-5 pt-10">
-                                <Timeline>
-                                    {activityItems.map((item, index) => (
-                                        <TimelineItem key={index} className="h-28">
-                                            {index !== activityItems.length - 1 && <TimelineConnector className="!w-[78px]" />}
-                                            <TimelineHeader className="relative rounded-xl border border-blue-gray-50 bg-white py-3 pl-4 pr-8 shadow-lg shadow-blue-gray-900/5">
-                                                <TimelineIcon className="p-3" variant="ghost" color={getEventIconColor(item.details.type)}>
-                                                    {getEventIcon(item.details.type)}
-                                                </TimelineIcon>
-                                                <div className="flex flex-col gap-1">
-                                                    <Typography variant="h6" color="blue-gray">
-                                                        {getEventTypeLabel(item.details.type) + ' '}
-                                                        <Link to={'/register/' + item.link} className='text-[]'>
-                                                            {item.docName}
-                                                        </Link>
-                                                    </Typography>
-                                                    <Typography variant="small" color="gray" className="font-normal">
-                                                        Le {item.details && item.details.date && item.details.date.toDate ? new Date(item.details.date.toDate()).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''} à {item.details && item.details.date && item.details.date.toDate ? new Date(item.details.date.toDate()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
-                                                    </Typography>
-                                                </div>
-                                            </TimelineHeader>
-                                        </TimelineItem>
-                                    ))}
-                                </Timeline>
-                            </div>
-                        </div>
-                    </div>
                 </CardBody>
-            </Card>
+            </div>
         </div>
     );
 }
