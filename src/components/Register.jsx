@@ -1,11 +1,17 @@
 import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
+
 import { Card, CardBody, CardFooter, Typography, Input, Button, Switch } from "@material-tailwind/react";
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+
 import firebase from "firebase/compat/app";
+
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import "firebase/compat/storage";
+
+
 
 export function RegisterCard() {
     const [isHovered, setIsHovered] = useState(false);
