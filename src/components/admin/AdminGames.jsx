@@ -90,7 +90,7 @@ export function AdminGames() {
                         </Typography>
                     </div>
                     <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                        <Link to='/register/create/game'>
+                        <Link to='/admin/register/games/new'>
                             <Button className="flex items-center gap-3 bg-pixi shadow-none hover:shadow-pixi" size="sm">
                                 <PlusIcon strokeWidth={2} className="h-4 w-4" /> Publier une formation
                             </Button>
