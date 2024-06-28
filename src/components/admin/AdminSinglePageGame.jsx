@@ -34,10 +34,12 @@ export function AdminSinglePageGame() {
     const [availableDevices, setAvailableDevices] = useState(['PC', 'Mac', 'Android', 'IOS']);
     const [availableTags, setAvailableTags] = useState(['RSE', 'Marketing', 'Code', 'Électronique', 'Mathématiques', 'Sport', 'Histoire']);
     const [statusOptions] = useState(['approval', 'active', 'archived']);
+    const [isModified, setIsModified] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const firestore = firebase.firestore();
+        const storageRef = firebase.storage().ref();
         const fetchData = async () => {
             try {
                 const gameDoc = await firestore.collection('games').doc(id).get();
@@ -51,7 +53,15 @@ export function AdminSinglePageGame() {
                     setLicence(gameData.licence || '');
                     setDevices(gameData.devices || []);
                     setStatus(gameData.status || '');
-                    setPreviewUrl(gameData.gamePicture ? `path/to/image/${gameData.gamePicture}` : '');
+                    if (gameData.gamePicture) {
+                        try {
+                            const imgRef = storageRef.child(`img/gamePicture/${gameData.gamePicture}`);
+                            const imgUrl = await imgRef.getDownloadURL();
+                            setPreviewUrl(imgUrl);
+                        } catch (error) {
+                            console.error('Erreur lors de la récupération de l\'URL de l\'image du jeu :', error);
+                        }
+                    }
                     setSelectedGameFileName(gameData.game ? gameData.game.split('/').pop() : '');
                     const gameStepsSnapshot = await firestore.collection('games').doc(id).collection('gameContent').orderBy('order').get();
                     const steps = gameStepsSnapshot.docs.map(doc => doc.data());
@@ -64,12 +74,43 @@ export function AdminSinglePageGame() {
         fetchData();
     }, [id]);
 
+    
+    const checkIsModified = () => {
+        if (!selectedGame) return;
+        if (
+            title !== selectedGame.title ||
+            desc !== selectedGame.desc ||
+            JSON.stringify(tags) !== JSON.stringify(selectedGame.tags) ||
+            price !== (selectedGame.price || '') ||
+            licence !== (selectedGame.licence || '') ||
+            JSON.stringify(devices) !== JSON.stringify(selectedGame.devices) ||
+            status !== (selectedGame.status || '') ||
+            selectedImage ||
+            selectedGameFile ||
+            JSON.stringify(gameSteps.map(step => ({
+                title: step.title,
+                content: step.content,
+                time: step.time
+            }))) !== JSON.stringify(selectedGame.gameContent)
+        ) {
+            setIsModified(true);
+        } else {
+            setIsModified(false);
+        }
+    };
+
+    
+    useEffect(() => {
+        checkIsModified();
+    }, [title, desc, tags, price, licence, devices, status, selectedImage, selectedGameFile, gameSteps]);
+
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
             const fileUrl = URL.createObjectURL(file);
             setPreviewUrl(fileUrl);
             setSelectedImage(file);
+            setIsModified(true);
         }
     };
 
@@ -78,15 +119,18 @@ export function AdminSinglePageGame() {
         if (file) {
             setSelectedGameFile(file);
             setSelectedGameFileName(file.name);
+            setIsModified(true);
         }
     };
 
     const addStep = () => {
         const order = gameSteps.length + 1;
-        setGameSteps([...gameSteps, { title: newStepTitle, content: newStepContent, time: newStepTime, order }]);
+        const newStep = { title: newStepTitle, content: newStepContent, time: newStepTime, order, isModified: true };
+        setGameSteps([...gameSteps, newStep]);
         setNewStepTitle('');
         setNewStepContent('');
         setNewStepTime('');
+        setIsModified(true);
     };
 
     const removeStep = (index) => {
@@ -95,33 +139,67 @@ export function AdminSinglePageGame() {
             order: i + 1
         }));
         setGameSteps(updatedSteps);
+        setIsModified(true);
+    };
+
+    const handleStepTitleChange = (index, value) => {
+        const updatedSteps = [...gameSteps];
+        updatedSteps[index].title = value;
+        updatedSteps[index].isModified = true;
+        setGameSteps(updatedSteps);
+        setIsModified(true);
+    };
+
+    const handleStepContentChange = (index, value) => {
+        const updatedSteps = [...gameSteps];
+        updatedSteps[index].content = value;
+        updatedSteps[index].isModified = true;
+        setGameSteps(updatedSteps);
+        setIsModified(true);
+    };
+
+    const handleStepTimeChange = (index, value) => {
+        const updatedSteps = [...gameSteps];
+        updatedSteps[index].time = value;
+        updatedSteps[index].isModified = true;
+        setGameSteps(updatedSteps);
+        setIsModified(true);
     };
 
     const handleAddDevice = (device) => {
         if (editMode && !devices.includes(device)) {
             setDevices([...devices, device]);
+            setIsModified(true);
         }
     };
 
     const handleRemoveDevice = (device) => {
         if (editMode) {
             setDevices(devices.filter(d => d !== device));
+            setIsModified(true);
         }
     };
 
     const handleAddTag = (tag) => {
         if (editMode && !tags.includes(tag)) {
             setTags([...tags, tag]);
+            setIsModified(true);
         }
     };
 
     const handleRemoveTag = (tag) => {
         if (editMode) {
             setTags(tags.filter(t => t !== tag));
+            setIsModified(true);
         }
     };
 
     const handleSaveGameChanges = async () => {
+        if (!isModified) {
+            alert('Aucune modification détectée.');
+            return;
+        }
+
         const db = firebase.firestore();
         const storageRef = firebase.storage().ref();
 
@@ -163,37 +241,53 @@ export function AdminSinglePageGame() {
                 navigate('/admin/register/games');
             })
             .catch((error) => {
-                console.log('Erreur lors de l\'enregistrement des modifications:', error);
+                alert('Erreur lors de la mise à jour des données : ' + error.message);
             });
 
-        const gameContentRef = db.collection('games').doc(id).collection('gameContent');
         const batch = db.batch();
         gameSteps.forEach((step, index) => {
-            const stepRef = gameContentRef.doc(step.id || gameContentRef.doc().id);
-            batch.set(stepRef, { ...step, order: index + 1 });
+            if (step.isModified) {
+                const stepRef = db.collection('games').doc(id).collection('gameContent').doc(index.toString());
+                batch.set(stepRef, {
+                    title: step.title,
+                    content: step.content,
+                    time: step.time,
+                    order: step.order
+                });
+            }
         });
-        await batch.commit();
+
+        batch.commit()
+            .then(() => {
+                console.log('Étapes mises à jour avec succès !');
+            })
+            .catch((error) => {
+                console.error('Erreur lors de la mise à jour des étapes :', error);
+            });
+
+        setIsModified(false);
     };
 
-    const handleDeleteGame = (gameId) => {
-        const db = firebase.firestore();
-        const updatedData = {
-            active: false
-        };
+    const handleDeleteGame = (id) => {
+        if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce jeu ?')) {
+            return;
+        }
 
-        db.collection('games').doc(gameId).update(updatedData)
+        const db = firebase.firestore();
+        db.collection('games').doc(id).delete()
             .then(() => {
                 setEditMode(false);
                 alert('Suppression avec succès !');
                 navigate('/register/news');
             })
             .catch((error) => {
-                alert('Erreur lors de la suppression :', error);
+                alert('Erreur lors de la suppression : ' + error.message);
             });
     };
 
     const handleStatusChange = (newStatus) => {
         setStatus(newStatus);
+        setIsModified(true);
     };
 
     return (
@@ -354,28 +448,39 @@ export function AdminSinglePageGame() {
                                 {gameSteps.map((step, index) => (
                                     <div key={index} className="flex flex-col gap-2">
                                         <Typography>Étape {index + 1}</Typography>
-                                        <Typography>Titre: {step.title}</Typography>
-                                        <Typography>Contenu: {step.content}</Typography>
-                                        <Typography>Temps: {step.time} minutes</Typography>
+                                        <div className='gap-2 w-full'>
+                                            <Input label="Titre de l'étape" color="orange" value={step.title} size="lg" onChange={(e) => handleStepTitleChange(index, e.target.value)} disabled={!editMode} />
+                                            <Input label="Contenu de l'étape" color="orange" value={step.content} size="lg" onChange={(e) => handleStepContentChange(index, e.target.value)} disabled={!editMode} />
+                                            <Input label="Temps (en minutes)" color="orange" value={step.time} size="lg" onChange={(e) => handleStepTimeChange(index, e.target.value)} disabled={!editMode} />
+                                        </div>
                                         {editMode && (
-                                            <Button variant="outlined" color="red" onClick={() => removeStep(index)}>
-                                                <TrashIcon strokeWidth={2} className="h-4 w-4" /> Supprimer
-                                            </Button>
+                                            <div className="flex gap-2 mt-2">
+                                                <Button variant="text" color="red" onClick={() => removeStep(index)}>
+                                                    Supprimer l'étape
+                                                </Button>
+                                            </div>
                                         )}
                                     </div>
                                 ))}
                                 {editMode && (
                                     <div className="flex flex-col gap-2">
-                                        <Input label="Titre de l'étape" color="orange" value={newStepTitle} size="lg" onChange={(e) => setNewStepTitle(e.target.value)} />
-                                        <Input label="Contenu de l'étape" color="orange" value={newStepContent} size="lg" onChange={(e) => setNewStepContent(e.target.value)} />
-                                        <Input label="Temps (en minutes)" color="orange" value={newStepTime} size="lg" onChange={(e) => setNewStepTime(e.target.value)} />
-                                        <Button className="bg-pixi hover:shadow-none" onClick={addStep}>Ajouter l'étape</Button>
+                                        <Typography variant="h6">Ajouter une étape :</Typography>
+                                        <div className='gap-2 w-full'>
+                                            <Input label="Titre de l'étape" color="orange" value={newStepTitle} size="lg" onChange={(e) => setNewStepTitle(e.target.value)} />
+                                            <Input label="Contenu de l'étape" color="orange" value={newStepContent} size="lg" onChange={(e) => setNewStepContent(e.target.value)} />
+                                            <Input label="Temps (en minutes)" color="orange" value={newStepTime} size="lg" onChange={(e) => setNewStepTime(e.target.value)} />
+                                        </div>
+                                        <div className="flex gap-2 mt-2">
+                                            <Button variant="gradient" color="green" onClick={addStep}>
+                                                Ajouter l'étape
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         </div>
                     ) : (
-                        <Typography>Chargement...</Typography>
+                        <Typography className="text-center mt-8">Chargement...</Typography>
                     )}
                 </CardBody>
             </div>
