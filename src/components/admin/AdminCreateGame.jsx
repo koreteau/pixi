@@ -148,7 +148,7 @@ export function AdminCreateGame() {
         <div className="max-w-5xl mx-auto">
             <CardHeader floated={false} shadow={false} className="rounded-none flex flex-col items-center justify-center py-[2rem]">
                 <Typography variant="h4">
-                    Push ta formation à la communauté
+                    Publier une formation
                 </Typography>
             </CardHeader>
             <CardBody className="flex flex-col gap-4">
@@ -244,7 +244,7 @@ export function AdminCreateGame() {
                 </div>
             </CardBody>
             <CardFooter className='flex gap-2'>
-                <Link to='/'>
+                <Link to='/admin/register/games'>
                     <Button variant="outlined" color="red">
                         <span>Annuler</span>
                     </Button>
