@@ -29,7 +29,10 @@ import { DefaultDrawerSidebar } from './components/admin/DrawerSideBar';
 import { AdminHome } from './components/admin/AdminHome'
 import { AdminGames } from './components/admin/AdminGames';
 import { AdminSinglePageGame } from './components/admin/AdminSinglePageGame';
+import { AdminSinglePageUser } from './components/admin/AdminSinglePageUser';
 import { AdminCreateGame } from './components/admin/AdminCreateGame';
+import { AdminUsers } from './components/admin/AdminUsers';
+import { AdminCreateUser } from './components/admin/AdminCreateUser';
 
 
 
@@ -141,6 +144,36 @@ function AppContent({ user, admin }) {
                 <div className={`w-full ${windowWidth > 1000 ? 'pl-[20rem]' : ''}`}>
                   <PageTitle title="Admin - Formations" />
                   <AdminCreateGame />
+                </div>
+                {windowWidth <= 1000 && <DefaultDrawerSidebar />}
+              </div>
+            } />
+            <Route path="/admin/settings/users" element={
+              <div style={{ display: 'flex' }}>
+                {windowWidth > 1000 && <SidebarWithLogo />}
+                <div className={`w-full ${windowWidth > 1000 ? 'pl-[20rem]' : ''}`}>
+                  <PageTitle title="Admin - Utilisateurs" />
+                  <AdminUsers />
+                </div>
+                {windowWidth <= 1000 && <DefaultDrawerSidebar />}
+              </div>
+            } />
+            <Route path="/admin/settings/users/:id" element={
+              <div style={{ display: 'flex' }}>
+                {windowWidth > 1000 && <SidebarWithLogo />}
+                <div className={`w-full ${windowWidth > 1000 ? 'pl-[20rem]' : ''}`}>
+                  <PageTitle title="Admin - Utilisateurs" />
+                  <AdminSinglePageUser />
+                </div>
+                {windowWidth <= 1000 && <DefaultDrawerSidebar />}
+              </div>
+            } />
+            <Route path="/admin/settings/users/new" element={
+              <div style={{ display: 'flex' }}>
+                {windowWidth > 1000 && <SidebarWithLogo />}
+                <div className={`w-full ${windowWidth > 1000 ? 'pl-[20rem]' : ''}`}>
+                  <PageTitle title="Admin - Utilisateurs" />
+                  <AdminCreateUser />
                 </div>
                 {windowWidth <= 1000 && <DefaultDrawerSidebar />}
               </div>
