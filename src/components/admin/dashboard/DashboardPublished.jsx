@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
+
 import { Card, CardBody, Typography } from "@material-tailwind/react";
+
 import { AgChartsReact } from 'ag-charts-react';
+
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+
+
 
 export function DashboardPublished({ option }) {
     const [chartOptions, setChartOptions] = useState({
