@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
+
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import {
-    Button,
-    Typography,
-    Input,
-    Switch,
-    CardHeader,
-    CardBody
-} from '@material-tailwind/react';
+
+import { Button, Typography, Input, Switch, CardHeader, CardBody, Spinner } from '@material-tailwind/react';
 import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
+
+
 
 export function AdminSinglePageUser() {
     const { id } = useParams();
@@ -264,7 +262,9 @@ export function AdminSinglePageUser() {
                             </div>
                         </div>
                     ) : (
-                        <Typography className="text-center mt-8">Chargement...</Typography>
+                        <div className='flex flex-col items-center justify-center min-h-screen'>
+                            <Spinner className="h-20 w-20" color="orange" />
+                        </div>
                     )}
                 </CardBody>
             </div>
