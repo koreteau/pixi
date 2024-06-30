@@ -11,7 +11,7 @@ import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 import { NavbarWithMegaMenu } from './components/Navbar';
 import { LoginCard } from './components/Login';
-import { Account } from "./components/Account";
+import { Account } from "./components/account/Account";
 import { Home } from './components/Home';
 import { UserPage } from './components/SinglePageUser';
 import { NotFound } from './components/404';
