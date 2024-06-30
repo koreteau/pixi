@@ -12,6 +12,9 @@ import "firebase/compat/firestore";
 import "firebase/compat/storage";
 
 import logo from '../assets/logo.png';
+import blank from '../assets/blank-profile-picture.webp'
+
+
 
 const profileMenuItems = [
     {
@@ -28,6 +31,8 @@ const profileMenuItems = [
         icon: PowerIcon,
     },
 ];
+
+
 
 function ProfileMenu() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,6 +82,8 @@ function ProfileMenu() {
                         const userData = userDoc.data();
                         if (userData.profilePicture) {
                             fetchProfilePictureURL(`img/userPicture/${userData.profilePicture}`);
+                        } else {
+                            setProfilePictureURL(blank);
                         }
                         if (userData.isAdmin) {
                             setIsAdmin(true);
@@ -110,7 +117,7 @@ function ProfileMenu() {
                         size="sm"
                         alt="Profile Picture"
                         className="border border-gray-900 p-0.5"
-                        src={profilePictureURL || ""}
+                        src={profilePictureURL || blank}
                     />
                     <ChevronDownIcon
                         strokeWidth={2.5}
