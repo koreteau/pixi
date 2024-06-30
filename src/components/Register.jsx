@@ -97,16 +97,16 @@ export function RegisterCard() {
                             </label>
                         </div>
                     </div>
-                    <Input label="Nom complet" size="lg" color="pixi" value={name} onChange={(event) => setName(event.target.value)} />
-                    <Input label="Identifiant" size="lg" color="pixi" value={username} onChange={(event) => setUsername(event.target.value)} />
-                    <Input label="Date de naissance" type="date" value={birthdate} size="lg" onChange={(e) => setBirthdate(e.target.value)} />
-                    <Input label="Email" size="lg" type="email" color="lightBlue" value={email} onChange={(event) => setEmail(event.target.value)} />
-                    <Input label="Mot de passe" size="lg" type="password" color="lightBlue" value={password} onChange={(event) => setPassword(event.target.value)} />
+                    <Input label="Nom complet" size="lg" color="orange" value={name} onChange={(event) => setName(event.target.value)} />
+                    <Input label="Identifiant" size="lg" color="orange" value={username} onChange={(event) => setUsername(event.target.value)} />
+                    <Input label="Date de naissance" type="date" color="orange" value={birthdate} size="lg" onChange={(e) => setBirthdate(e.target.value)} />
+                    <Input label="Email" size="lg" type="email" color="orange" value={email} onChange={(event) => setEmail(event.target.value)} />
+                    <Input label="Mot de passe" size="lg" type="password" color="orange" value={password} onChange={(event) => setPassword(event.target.value)} />
                     <div className="flex items-center gap-4">
-                        <Switch label="Vendeur" checked={isSeller} onChange={() => setIsSeller(!isSeller)} />
+                        <Switch label="Vendeur" color="orange" checked={isSeller} onChange={() => setIsSeller(!isSeller)} />
                     </div>
                     {isSeller && (
-                        <Input label="Numéro d'identification" size="lg" color="lightBlue" value={idNumber} onChange={(event) => setIdNumber(event.target.value)} />
+                        <Input label="Numéro d'identification" size="lg" color="orange" value={idNumber} onChange={(event) => setIdNumber(event.target.value)} />
                     )}
                 </CardBody>
                 <CardFooter className="pt-0">
