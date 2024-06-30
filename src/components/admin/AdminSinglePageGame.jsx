@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { Button, Typography, CardHeader, CardBody, Input, Switch, Menu, MenuHandler, MenuList, MenuItem, Chip } from '@material-tailwind/react';
+import { Button, Typography, CardHeader, CardBody, Input, Switch, Menu, MenuHandler, MenuList, MenuItem, Chip, Spinner } from '@material-tailwind/react';
 import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 import firebase from 'firebase/compat/app';
@@ -506,7 +506,9 @@ export function AdminSinglePageGame() {
                             </div>
                         </div>
                     ) : (
-                        <Typography className="text-center mt-8">Chargement...</Typography>
+                        <div className='flex flex-col items-center justify-center min-h-screen'>
+                            <Spinner className="h-20 w-20" color="amber" />
+                        </div>
                     )}
                 </CardBody>
             </div>
