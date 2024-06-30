@@ -19,7 +19,7 @@ export function AdminCreateUser() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isSeller, setIsSeller] = useState(false);
     const [idNumber, setIdNumber] = useState('');
-    const [isActive, setIsActive] = useState(true); // Nouvel état pour isActive
+    const [isActive, setIsActive] = useState(true);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -32,11 +32,9 @@ export function AdminCreateUser() {
 
     const handleSubmit = async () => {
         try {
-            // Création de l'utilisateur dans Firebase Authentication
             const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
             const user = userCredential.user;
 
-            // Création du timestamp pour la date de naissance
             const birthdateTimestamp = firebase.firestore.Timestamp.fromDate(new Date(birthdate));
 
             let profilePicture = '';
@@ -51,7 +49,7 @@ export function AdminCreateUser() {
 
             // Enregistrement des informations supplémentaires dans Firestore
             await firebase.firestore().collection('users').doc(user.uid).set({
-                name,
+                fullName: name,
                 username,
                 birthdate: birthdateTimestamp,
                 email,
