@@ -7,6 +7,8 @@ import 'firebase/compat/firestore';
 import 'firebase/compat/auth';
 
 import { AccountMyGames } from './AccountMyGames';
+import { AccountInfos } from "./AccountInfos";
+import { AccountPurchases } from './AccountPurchases'
 
 import blank from '../../assets/blank-profile-picture.webp';
 
@@ -21,12 +23,12 @@ export function Account() {
         {
             label: "Mes informations",
             value: "infos",
-            component: "<AccountInfos />",
+            component: <AccountInfos />,
         },
         {
             label: "Mes achats",
             value: "purchases",
-            component: "<AccountPurchases />",
+            component: <AccountPurchases />,
         },
     ];
 
@@ -34,7 +36,7 @@ export function Account() {
         {
             label: "Mes informations",
             value: "infos",
-            component: "<AccountInfos />",
+            component: <AccountInfos />,
         },
         {
             label: "Mes formations",
@@ -44,7 +46,7 @@ export function Account() {
         {
             label: "Mes achats",
             value: "purchases",
-            component: "<AccountPurchases />",
+            component: <AccountPurchases />,
         },
     ];
 
