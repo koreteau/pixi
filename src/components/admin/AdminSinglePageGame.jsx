@@ -433,9 +433,9 @@ export function AdminSinglePageGame() {
                                                     className={`cursor-pointer flex flex-col items-center justify-center mt-2 h-full bg-cover bg-center bg-no-repeat ${editMode ? 'filter grayscale' : ''}`}
                                                     style={{ backgroundImage: `url(${previewUrl})` }}
                                                 >
-                                                    <ArrowUpTrayIcon className="h-10 w-10 text-gray-400" />
+                                                    <ArrowUpTrayIcon className="h-10 w-10 text-white" />
                                                     <input type="file" className="hidden" onChange={handleImageUpload} disabled={!editMode} />
-                                                    <span className="text-gray-400">Télécharger une image</span>
+                                                    <span className="text-white">Télécharger une image</span>
                                                 </label>
                                             ) : (
                                                 <img src={previewUrl} alt="Aperçu" className="h-full object-cover" />
