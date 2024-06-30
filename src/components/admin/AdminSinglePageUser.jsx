@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-
 import { useParams, Link, useNavigate } from 'react-router-dom';
-
-import { Button, Typography, Input, Switch, CardHeader, CardBody } from '@material-tailwind/react';
+import {
+    Button,
+    Typography,
+    Input,
+    Switch,
+    CardHeader,
+    CardBody
+} from '@material-tailwind/react';
 import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
-
-
 
 export function AdminSinglePageUser() {
     const { id } = useParams();
@@ -17,7 +19,7 @@ export function AdminSinglePageUser() {
     const [editMode, setEditMode] = useState(false);
     const [fullName, setFullName] = useState('');
     const [username, setUsername] = useState('');
-    const [birthdate, setBirthdate] = useState(null);
+    const [birthdate, setBirthdate] = useState('');
     const [isActive, setIsActive] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isSeller, setIsSeller] = useState(false);
@@ -29,21 +31,21 @@ export function AdminSinglePageUser() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const firestore = firebase.firestore();
-        const storageRef = firebase.storage().ref();
-
         const fetchData = async () => {
+            const firestore = firebase.firestore();
+            const storageRef = firebase.storage().ref();
+
             try {
                 const userDoc = await firestore.collection('users').doc(id).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     setSelectedUser(userData);
-                    setFullName(userData.fullName);
-                    setUsername(userData.username);
-                    setBirthdate(userData.birthdate);
-                    setIsActive(userData.isActive);
-                    setIsAdmin(userData.isAdmin);
-                    setIsSeller(userData.isSeller);
+                    setFullName(userData.fullName || '');
+                    setUsername(userData.username || '');
+                    setBirthdate(userData.birthdate ? userData.birthdate.toDate().toISOString().split('T')[0] : '');
+                    setIsActive(userData.isActive || false);
+                    setIsAdmin(userData.isAdmin || false);
+                    setIsSeller(userData.isSeller || false);
                     setIdNumber(userData.idNumber || '');
                     setProfilePicture(userData.profilePicture ? `img/userPicture/${userData.profilePicture}` : '');
 
@@ -56,6 +58,8 @@ export function AdminSinglePageUser() {
                             console.error('Erreur lors de la récupération de l\'URL de l\'image de profil :', error);
                         }
                     }
+                } else {
+                    console.error('Aucun utilisateur trouvé avec l\'identifiant spécifié.');
                 }
             } catch (error) {
                 console.error('Erreur lors de la récupération des données utilisateur :', error);
@@ -65,21 +69,39 @@ export function AdminSinglePageUser() {
         fetchData();
     }, [id]);
 
+    const isValidDate = (dateString) => {
+        // Simple regex to validate yyyy-MM-dd format
+        return /^\d{4}-\d{2}-\d{2}$/.test(dateString);
+    };
+
     const handleSaveUserChanges = async () => {
         if (!isModified) {
             alert('Aucune modification détectée.');
             return;
         }
 
-        const db = firebase.firestore();
+        const firestore = firebase.firestore();
         const storageRef = firebase.storage().ref();
 
         let img = selectedUser.profilePicture || '';
+
         if (profilePictureFile) {
             const imageExtension = profilePictureFile.name.split('.').pop();
             const fileRef = storageRef.child(`img/userPicture/${id}.${imageExtension}`);
-            await fileRef.put(profilePictureFile);
-            img = `${id}.${imageExtension}`;
+
+            try {
+                await fileRef.put(profilePictureFile);
+                img = `${id}.${imageExtension}`;
+            } catch (error) {
+                console.error('Erreur lors du téléchargement de l\'image :', error);
+                alert('Erreur lors du téléchargement de l\'image.');
+                return;
+            }
+        }
+
+        if (!isValidDate(birthdate)) {
+            alert('La date de naissance n\'est pas dans le format attendu (yyyy-MM-dd).');
+            return;
         }
 
         const updatedData = {
@@ -93,34 +115,36 @@ export function AdminSinglePageUser() {
             profilePicture: img,
         };
 
-        db.collection('users').doc(id).update(updatedData)
-            .then(() => {
-                setEditMode(false);
-                alert('Données utilisateur mises à jour avec succès !');
-                navigate('/admin/users');
-            })
-            .catch((error) => {
-                alert('Erreur lors de la mise à jour des données utilisateur : ' + error.message);
-            });
+        try {
+            await firestore.collection('users').doc(id).update(updatedData);
+            setEditMode(false);
+            alert('Données utilisateur mises à jour avec succès !');
+            navigate('/admin/settings/users');
+        } catch (error) {
+            alert('Erreur lors de la mise à jour des données utilisateur : ' + error.message);
+            console.error('Erreur lors de la mise à jour des données utilisateur :', error);
+        }
 
         setIsModified(false);
     };
 
-    const handleDeleteUser = () => {
+    const handleDeleteUser = async () => {
         if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
             return;
         }
 
-        const db = firebase.firestore();
-        db.collection('users').doc(id).delete()
-            .then(() => {
-                setEditMode(false);
-                alert('Utilisateur supprimé avec succès !');
-                navigate('/admin/users');
-            })
-            .catch((error) => {
-                alert('Erreur lors de la suppression de l\'utilisateur : ' + error.message);
-            });
+        const firestore = firebase.firestore();
+        const storageRef = firebase.storage().ref();
+
+        try {
+            await firestore.collection('users').doc(id).delete();
+            setEditMode(false);
+            alert('Utilisateur supprimé avec succès !');
+            navigate('/admin/settings/users');
+        } catch (error) {
+            alert('Erreur lors de la suppression de l\'utilisateur : ' + error.message);
+            console.error('Erreur lors de la suppression de l\'utilisateur :', error);
+        }
     };
 
     const handleImageUpload = (e) => {
@@ -148,7 +172,7 @@ export function AdminSinglePageUser() {
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-8 grid items-center justify-between gap-8 sm:grid-cols-1 md:grid-cols-2">
                         <div className='flex items-center'>
-                            <Link to='/admin/users'>
+                            <Link to='/admin/settings/users'>
                                 <Button variant="text" className='hover:bg-none' onClick={() => { setEditMode(false) }}>
                                     <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" color='orange' />
                                 </Button>
