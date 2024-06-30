@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { CardBody, CardHeader, Input, Button, Typography } from '@material-tailwind/react';
 
 import { DashboardPublished } from './DashboardPublished';
-import { DashboardAverageModif } from './DashboardAverageModif';
 import { DashboardDeviceTypes } from './DashboardDeviceTypes';
 
 import './styles.css';
@@ -73,7 +72,6 @@ export function Dashboard() {
             <CardBody className="overflow-scroll px-0">
                 <div className="grid grid-cols-1 gap-3 custom-sm custom-md custom-lg custom-xlg">
                     <DashboardPublished option={dateFilter} />
-                    <DashboardAverageModif option={dateFilter} />
                     <DashboardDeviceTypes option={dateFilter} />
                 </div>
             </CardBody>
