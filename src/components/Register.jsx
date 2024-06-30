@@ -64,13 +64,13 @@ export function RegisterCard() {
             }
 
             await firebase.firestore().collection('users').doc(user.uid).set({
-                name,
+                fullName: name,
                 username,
                 birthdate: birthdateTimestamp,
-                email,
                 profilePicture,
                 isAdmin: false,
                 isSeller,
+                isActive: true,
                 idNumber: isSeller ? idNumber : null
             });
 
