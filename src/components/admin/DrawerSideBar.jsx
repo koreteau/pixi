@@ -59,7 +59,7 @@ export function DefaultDrawerSidebar() {
                 </div>
                 <div className="w-full shadow-none">
                     <List>
-                        <ListItem onClick={() => handleLinkClick('/dashboard')}>
+                        <ListItem onClick={() => handleLinkClick('/admin/dashboard')}>
                             <ListItemPrefix>
                                 <PresentationChartBarIcon className="h-5 w-5" />
                             </ListItemPrefix>
@@ -89,7 +89,7 @@ export function DefaultDrawerSidebar() {
                                     <ListItem onClick={() => handleLinkClick('admin/register/games')}>
                                         <ListItemPrefix>
                                         </ListItemPrefix>
-                                        Actualités
+                                        Formations
                                     </ListItem>
                                 </List>
                             </AccordionBody>
