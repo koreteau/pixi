@@ -9,11 +9,11 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 
 
-const TABLE_HEAD = ['Title', 'Description', 'Status', 'Author'];
+const TABLE_HEAD = ['Titre', 'Description', 'Statut', 'Auteur'];
 const TABS = [
     { label: 'Toutes les formations', value: 'all' },
     { label: "En attente d'approbation", value: 'approval' },
-    { label: 'Active', value: 'active' },
+    { label: 'Actives', value: 'active' },
     { label: 'Désactivées', value: 'archived' },
 ];
 
