@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
+
 import { useParams, Link, useNavigate } from 'react-router-dom';
+
 import { Button, Typography, Input, Switch, CardHeader, CardBody, Spinner } from '@material-tailwind/react';
 import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
+
+
 
 export function AdminSinglePageUser() {
     const { id } = useParams();
