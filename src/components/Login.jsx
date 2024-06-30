@@ -2,7 +2,7 @@ import React from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
-import { Card, CardHeader, CardBody, CardFooter, Typography, Input, Button } from "@material-tailwind/react";
+import { Card, CardBody, CardFooter, Typography, Input, Button } from "@material-tailwind/react";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -35,7 +35,7 @@ export function LoginCard() {
             <Typography variant="paragraph" className="pt-[1.25rem] pb-[2.5rem] font-semibold">Ravi de te revoir ! Connecte toi pour accéder à ton compte.</Typography>
             <Card className="w-96 my-[3rem]">
                 <CardBody className="flex flex-col gap-4">
-                    <img src={logo} />
+                    <img src={logo} alt=''/>
                     <Input label="Email" size="lg" type="email" color="orange" value={email} onChange={(event) => setEmail(event.target.value)} />
                     <Input label="Mot de passe" size="lg" type="password" color="orange" value={password} onChange={(event) => setPassword(event.target.value)} />
                 </CardBody>
@@ -53,7 +53,7 @@ export function LoginCard() {
                                 color="blue-gray"
                                 className="ml-1 font-bold"
                             >
-                                Contacter l&apos;administrateur
+                                Créer un compte
                             </Typography>
                         </Link>
                     </Typography>
