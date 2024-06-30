@@ -21,12 +21,12 @@ export function Account() {
         {
             label: "Mes informations",
             value: "infos",
-            component: "<AccountMyGames />",
+            component: "<AccountInfos />",
         },
         {
             label: "Mes achats",
-            value: "buy",
-            component: "<AccountMyGames />",
+            value: "purchases",
+            component: "<AccountPurchases />",
         },
     ];
 
@@ -34,7 +34,7 @@ export function Account() {
         {
             label: "Mes informations",
             value: "infos",
-            component: "<AccountMyGames />",
+            component: "<AccountInfos />",
         },
         {
             label: "Mes formations",
@@ -43,8 +43,8 @@ export function Account() {
         },
         {
             label: "Mes achats",
-            value: "buy",
-            component: "<AccountMyGames />",
+            value: "purchases",
+            component: "<AccountPurchases />",
         },
     ];
 
