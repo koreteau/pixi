@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
+
 import { Link } from 'react-router-dom';
+
 import { Button, Card, CardHeader, CardBody, CardFooter, Input, Typography, Select, Option } from "@material-tailwind/react";
+
 import firebase from "firebase/compat/app";
 import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
+
+
 
 export function Catalog() {
     const [games, setGames] = useState([]);
