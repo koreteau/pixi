@@ -9,6 +9,9 @@ module.exports = withMT({
       current: 'currentColor',
       'pixi': '#f08028',
     },
+    fontFamily: {
+      sans: ["pixiFont", "sans-serif"],
+    },
   },
   plugins: [],
 });

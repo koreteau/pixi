@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* src/index.css */
+@font-face {
+    font-family: 'pixiFont';
+    src: url('./assets/Marine-c665de6a20a2ae339b7ede475c02aef8.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  /* Appliquez la police à l'ensemble du document */
+  html {
+    font-family: 'pixiFont', sans-serif;
+  }
+  
