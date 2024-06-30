@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
+
 import { Link } from 'react-router-dom';
+
 import { Button, CardBody, CardHeader, CardFooter, Input, Typography, Tabs, TabsHeader, Tab } from '@material-tailwind/react';
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
+
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+
 
 const TABLE_HEAD = ['Titre', 'Description', 'Statut', 'Date'];
 const TABS = [
@@ -12,6 +16,7 @@ const TABS = [
     { label: 'Actives', value: 'active' },
     { label: 'Désactivées', value: 'archived' },
 ];
+
 
 export function AccountMyGames() {
     const [games, setGames] = useState([]);
