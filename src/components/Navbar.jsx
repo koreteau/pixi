@@ -136,7 +136,7 @@ function ProfileMenu() {
                         </MenuItem>
                     </Link>
                 )}
-                <hr/>
+                <hr />
                 {profileMenuItems.map(({ label, icon, link }, key) => {
                     const isLastItem = key === profileMenuItems.length - 1;
                     const onClick = isLastItem ? handleLogout : closeMenu;
@@ -268,11 +268,11 @@ export function NavbarWithMegaMenu() {
             <Collapse open={openNav}>
                 <NavList />
                 {user ? (
-                    <div className="hidden lg:flex">
+                    <div className="lg:flex">
                         <ProfileMenu />
                     </div>
                 ) : (
-                    <div className="hidden gap-2 lg:flex">
+                    <div className="gap-2 lg:flex">
                         <Link to='/login'>
                             <Button variant="text" size="sm" color="blue-gray">
                                 Log In
