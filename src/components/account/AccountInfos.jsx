@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-
 import { Link, useNavigate } from 'react-router-dom';
-
 import { Button, Typography, Input, Switch, CardHeader, CardBody, Spinner } from '@material-tailwind/react';
-import { ArrowLeftIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
 import 'firebase/compat/auth';
-
-
+import moment from 'moment-timezone';
 
 export function AccountInfos() {
     const [user, setUser] = useState(null);
@@ -43,7 +39,7 @@ export function AccountInfos() {
                     setUser(userData);
                     setFullName(userData.fullName || '');
                     setUsername(userData.username || '');
-                    setBirthdate(userData.birthdate || '');
+                    setBirthdate(userData.birthdate ? moment(userData.birthdate.toDate()).format('YYYY-MM-DD') : '');
                     setIsSeller(userData.isSeller || false);
                     setIdNumber(userData.idNumber || '');
                     setProfilePicture(userData.profilePicture ? `img/userPicture/${userData.profilePicture}` : '');
@@ -109,6 +105,9 @@ export function AccountInfos() {
         if (birthdate && !isValidDate(birthdate)) {
             alert('La date de naissance n\'est pas dans le format attendu (yyyy-MM-dd).');
             return;
+        } else {
+            const birthdateTimestamp = firebase.firestore.Timestamp.fromDate(moment.tz(birthdate, 'YYYY-MM-DD', 'UTC').toDate());
+            modifiedFields.birthdate = birthdateTimestamp;
         }
 
         if (isSeller && !idNumber) {
