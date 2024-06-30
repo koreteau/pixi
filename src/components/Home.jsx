@@ -17,9 +17,10 @@ export function Home() {
         <>
             <div className="flex flex-col items-center justify-center py-[5rem]">
                 <div className="text-center pt-[2.5rem] sm:max-w-[30rem] md:max-w-[40rem] lg:max-w-[70rem]">
-                    <Typography variant="h3">LA PREMIÈRE PLATEFORME COMMUNAUTAIRE DE SERIOUS GAMES</Typography>
-                    <Typography variant="paragraph" className="pt-[1.25rem] font-semibold">Nous offrons un espace dynamique où les créateurs de contenu peuvent partager leurs jeux novateurs et instructifs avec une communauté engagée. Que vous soyez un développeur talentueux ou un joueur curieux, rejoignez-nous pour découvrir, créer et apprendre ensemble sur notre plateforme interactive.</Typography>
-                    <div className="pt-[2.5rem] items-center justify-center gap-2">
+                <Typography variant="h3"  >LA PREMIÈRE PLATEFORME COMMUNAUTAIRE<br />DE SERIOUS GAMES</Typography>
+
+                    <Typography  variant="paragraph" className="pt-[3.25rem] font-semibold">Nous offrons un espace dynamique où les créateurs de contenu peuvent partager leurs jeux novateurs<br /> et instructifs avec une communauté engagée. Que vous soyez un développeur talentueux ou un joueur curieux,<br /> rejoignez-nous pour découvrir, créer et apprendre ensemble sur notre plateforme interactive.</Typography>
+                    <div className="pt-[3.5rem] items-center justify-center gap-2">
                         <Link to='/register'>
                             <Button className="bg-pixi hover:shadow-pixi my-1">Je fonce m'inscrire</Button>
                         </Link>
@@ -28,14 +29,14 @@ export function Home() {
                         </Link>
                     </div>
                 </div>
-                <img src={slide} className="pt-10 w-[2rem]" />
+                <img src={slide} className="pt-20 w-[2rem]" />
             </div>
             <div className="flex flex-col items-center justify-center bg-pixi text-white">
                 <div className="text-center pt-[2.5rem] sm:max-w-[30rem] md:max-w-[40rem] lg:max-w-[70rem]">
                     <Typography variant="h3">Sortir de l'apprentissage classique grâce à la communauté</Typography>
-                    <Typography variant="small" className="pt-[1.25rem] font-semibold">Que vous soyez un étudiant cherchant à élargir vos horizons ou un professionnel désireux de rester à la pointe de votre domaine, notre communauté vous offre un espace pour explorer, grandir et transformer l'apprentissage en une expérience enrichissante et collaborative.</Typography>
+                    <Typography variant="small" className="pt-[2.25rem] font-semibold">Que vous soyez un étudiant cherchant à élargir vos horizons ou un professionnel désireux de rester à la pointe de votre domaine, notre communauté vous offre un espace pour explorer, grandir et transformer l'apprentissage en une expérience enrichissante et collaborative.</Typography>
                 </div>
-                <did className="grid grid-cols-3 gap-4 custom-sm custom-md custom-lg py-5">
+                <did className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-5 pt-[3.25rem]" >
                     <div className="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-1-circle">
                             <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M9.283 4.002V12H7.971V5.338h-.065L6.072 6.656V5.385l1.899-1.383z"></path>
@@ -48,27 +49,27 @@ export function Home() {
                         </svg>
                         <Typography variant="h4">Installe ta formation</Typography>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-1-circle">
                             <path d="M7.918 8.414h-.879V7.342h.838c.78 0 1.348-.522 1.342-1.237 0-.709-.563-1.195-1.348-1.195-.79 0-1.312.498-1.348 1.055H5.275c.036-1.137.95-2.115 2.625-2.121 1.594-.012 2.608.885 2.637 2.062.023 1.137-.885 1.776-1.482 1.875v.07c.703.07 1.71.64 1.734 1.917.024 1.459-1.277 2.396-2.93 2.396-1.705 0-2.707-.967-2.754-2.144H6.33c.059.597.68 1.06 1.541 1.066.973.006 1.6-.563 1.588-1.354-.006-.779-.621-1.318-1.541-1.318Z"></path>
                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8"></path>
                         </svg>
                         <Typography variant="h4">Lance le jeu vidéo</Typography>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-1-circle">
                             <path d="M7.519 5.057c.22-.352.439-.703.657-1.055h1.933v5.332h1.008v1.107H10.11V12H8.85v-1.559H4.978V9.322c.77-1.427 1.656-2.847 2.542-4.265ZM6.225 9.281v.053H8.85V5.063h-.065c-.867 1.33-1.787 2.806-2.56 4.218Z"></path>
                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8"></path>
                         </svg>
-                        <Typography variant="h4">Poursuit les différentes quêtes</Typography>
+                        <Typography variant="h4">Poursuit les différentes<br /> quêtes</Typography>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-1-circle">
                             <path d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8m15 0A8 8 0 1 0 0 8a8 8 0 0 0 16 0m-8.006 4.158c-1.57 0-2.654-.902-2.719-2.115h1.237c.14.72.832 1.031 1.529 1.031.791 0 1.57-.597 1.57-1.681 0-.967-.732-1.57-1.582-1.57-.767 0-1.242.45-1.435.808H5.445L5.791 4h4.705v1.103H6.875l-.193 2.343h.064c.17-.258.715-.68 1.611-.68 1.383 0 2.561.944 2.561 2.585 0 1.687-1.184 2.806-2.924 2.806Z"></path>
                         </svg>
                         <Typography variant="h4">Fini tout les niveaux</Typography>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-1-circle">
                             <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.21 3.855c1.612 0 2.515.99 2.573 1.899H9.494c-.1-.358-.51-.815-1.312-.815-1.078 0-1.817 1.09-1.805 3.036h.082c.229-.545.855-1.155 1.98-1.155 1.254 0 2.508.88 2.508 2.555 0 1.77-1.218 2.783-2.847 2.783-.932 0-1.84-.328-2.409-1.254-.369-.603-.597-1.459-.597-2.642 0-3.012 1.248-4.407 3.117-4.407Zm-.099 4.008c-.92 0-1.564.65-1.564 1.576 0 1.032.703 1.635 1.558 1.635.868 0 1.553-.533 1.553-1.629 0-1.06-.744-1.582-1.547-1.582"></path>
                         </svg>
