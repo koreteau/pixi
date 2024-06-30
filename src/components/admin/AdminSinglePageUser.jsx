@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
-
 import { useParams, Link, useNavigate } from 'react-router-dom';
-
 import { Button, Typography, Input, Switch, CardHeader, CardBody, Spinner } from '@material-tailwind/react';
 import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
-
-
 
 export function AdminSinglePageUser() {
     const { id } = useParams();
@@ -40,7 +35,7 @@ export function AdminSinglePageUser() {
                     setSelectedUser(userData);
                     setFullName(userData.fullName || '');
                     setUsername(userData.username || '');
-                    setBirthdate(userData.birthdate ? userData.birthdate.toDate().toISOString().split('T')[0] : '');
+                    setBirthdate(userData.birthdate ? userData.birthdate : '');
                     setIsActive(userData.isActive || false);
                     setIsAdmin(userData.isAdmin || false);
                     setIsSeller(userData.isSeller || false);
@@ -68,7 +63,6 @@ export function AdminSinglePageUser() {
     }, [id]);
 
     const isValidDate = (dateString) => {
-        // Simple regex to validate yyyy-MM-dd format
         return /^\d{4}-\d{2}-\d{2}$/.test(dateString);
     };
 
@@ -132,7 +126,6 @@ export function AdminSinglePageUser() {
         }
 
         const firestore = firebase.firestore();
-        const storageRef = firebase.storage().ref();
 
         try {
             await firestore.collection('users').doc(id).delete();
@@ -157,11 +150,6 @@ export function AdminSinglePageUser() {
             };
             reader.readAsDataURL(file);
         }
-    };
-
-    const handleStatusChange = (newStatus) => {
-        setIsActive(newStatus === 'active');
-        setIsModified(true);
     };
 
     return (
@@ -208,24 +196,24 @@ export function AdminSinglePageUser() {
                             <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
                                 <div className=' gap-1 w-full'>
                                     <Typography>Nom complet :</Typography>
-                                    <Input color="orange" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={!editMode} />
+                                    <Input color="orange" value={fullName} onChange={(e) => { setFullName(e.target.value); setIsModified(true); }} disabled={!editMode} />
                                 </div>
                                 <div className=' gap-1 w-full'>
                                     <Typography>Nom d'utilisateur :</Typography>
-                                    <Input color="orange" value={username} onChange={(e) => setUsername(e.target.value)} disabled={!editMode} />
+                                    <Input color="orange" value={username} onChange={(e) => { setUsername(e.target.value); setIsModified(true); }} disabled={!editMode} />
                                 </div>
                             </div>
                             <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
                                 <div className='py-1'>
                                     <div className="flex items-center gap-3 pb-2">
                                         <Typography>Date de naissance :</Typography>
-                                        <Input type="date" color="orange" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} disabled={!editMode} />
+                                        <Input type="date" color="orange" value={birthdate} onChange={(e) => { setBirthdate(e.target.value); setIsModified(true); }} disabled={!editMode} />
                                     </div>
                                 </div>
                                 <div className='py-1'>
                                     <div className="flex items-center gap-3 pb-2">
                                         <Typography>Statut :</Typography>
-                                        <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} disabled={!editMode} />
+                                        <Switch checked={isActive} onChange={(e) => { setIsActive(e.target.checked); setIsModified(true); }} disabled={!editMode} />
                                     </div>
                                 </div>
                             </div>
@@ -233,20 +221,20 @@ export function AdminSinglePageUser() {
                                 <div className='py-1'>
                                     <div className="flex items-center gap-3 pb-2">
                                         <Typography>Administrateur :</Typography>
-                                        <Switch checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} disabled={!editMode} />
+                                        <Switch checked={isAdmin} onChange={(e) => { setIsAdmin(e.target.checked); setIsModified(true); }} disabled={!editMode} />
                                     </div>
                                 </div>
                                 <div className='py-1'>
                                     <div className="flex items-center gap-3 pb-2">
                                         <Typography>Vendeur :</Typography>
-                                        <Switch checked={isSeller} onChange={(e) => setIsSeller(e.target.checked)} disabled={!editMode} />
+                                        <Switch checked={isSeller} onChange={(e) => { setIsSeller(e.target.checked); setIsModified(true); }} disabled={!editMode} />
                                     </div>
                                 </div>
                             </div>
                             {isSeller && (
                                 <div className='mt-5'>
                                     <Typography>Numéro d'identification :</Typography>
-                                    <Input color="orange" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} disabled={!editMode} />
+                                    <Input color="orange" value={idNumber} onChange={(e) => { setIdNumber(e.target.value); setIsModified(true); }} disabled={!editMode} />
                                 </div>
                             )}
                             <div className='mt-5'>
