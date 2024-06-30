@@ -74,7 +74,7 @@ export function AdminSinglePageGame() {
         fetchData();
     }, [id]);
 
-    
+
     const checkIsModified = () => {
         if (!selectedGame) return;
         if (
@@ -99,7 +99,7 @@ export function AdminSinglePageGame() {
         }
     };
 
-    
+
     useEffect(() => {
         checkIsModified();
     }, [title, desc, tags, price, licence, devices, status, selectedImage, selectedGameFile, gameSteps]);
@@ -332,11 +332,11 @@ export function AdminSinglePageGame() {
                     {selectedGame ? (
                         <div>
                             <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
-                                <div className=' gap-1 w-full'>
+                                <div className='gap-1 w-full'>
                                     <Typography>Titre :</Typography>
                                     <Input color="orange" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!editMode} />
                                 </div>
-                                <div className=' gap-1 w-full'>
+                                <div className='gap-1 w-full'>
                                     <Typography>Courte description :</Typography>
                                     <Input color="orange" value={desc} onChange={(e) => setDesc(e.target.value)} disabled={!editMode} />
                                 </div>
@@ -395,52 +395,66 @@ export function AdminSinglePageGame() {
                                     )}
                                 </div>
                             </div>
-                            <div className='mt-5'>
-                                <Input label="Prix" color="orange" value={price} size="lg" onChange={(e) => setPrice(e.target.value)} disabled={!editMode} />
-                            </div>
-                            <div className='mt-5'>
-                                <Switch label="Licence" color="orange" checked={isLicenceEnabled} onChange={(e) => setIsLicenceEnabled(e.target.checked)} disabled={!editMode} />
-                                {isLicenceEnabled && <Input label="Licence" color="orange" value={licence} size="lg" onChange={(e) => setLicence(e.target.value)} disabled={!editMode} />}
-                            </div>
-                            <div className='gap-5 mt-5'>
-                                <Typography>Status :</Typography>
-                                {editMode ? (
-                                    <Menu>
-                                        <MenuHandler>
-                                            <Button className="bg-pixi hover:shadow-none">{status || 'Sélectionner le status'}</Button>
-                                        </MenuHandler>
-                                        <MenuList>
-                                            {statusOptions.map((option) => (
-                                                <MenuItem key={option} onClick={() => handleStatusChange(option)}>
-                                                    {option}
-                                                </MenuItem>
-                                            ))}
-                                        </MenuList>
-                                    </Menu>
-                                ) : (
-                                    <Input value={status} disabled />
-                                )}
-                            </div>
-                            <div className='mt-5'>
-                                <Typography>Image :</Typography>
-                                <div className="relative mb-4">
-                                    {previewUrl && <img src={previewUrl} alt="Aperçu" className="w-full h-48 object-cover" />}
-                                    <label className="cursor-pointer flex flex-col items-center mt-2">
-                                        <ArrowUpTrayIcon className="h-10 w-10 text-gray-400" />
-                                        <input type="file" className="hidden" onChange={handleImageUpload} disabled={!editMode} />
-                                        <span className="text-gray-400">Télécharger une image</span>
-                                    </label>
+                            <div className='gap-5 mt-5 grid sm:grid-cols-1 md:grid-cols-2'>
+                                <div className='py-1'>
+                                    <div className='mt-5'>
+                                        <Input label="Prix" color="orange" value={price} size="lg" onChange={(e) => setPrice(e.target.value)} disabled={!editMode} />
+                                    </div>
+                                    <div className='mt-5'>
+                                        <Switch label="Licence" color="orange" checked={isLicenceEnabled} onChange={(e) => setIsLicenceEnabled(e.target.checked)} disabled={!editMode} />
+                                        {isLicenceEnabled && <Input label="Licence" color="orange" value={licence} size="lg" onChange={(e) => setLicence(e.target.value)} disabled={!editMode} />}
+                                    </div>
+                                    <div className='gap-5 mt-5'>
+                                        <Typography>Status :</Typography>
+                                        {editMode ? (
+                                            <Menu>
+                                                <MenuHandler>
+                                                    <Button className="bg-pixi hover:shadow-none">{status || 'Sélectionner le status'}</Button>
+                                                </MenuHandler>
+                                                <MenuList>
+                                                    {statusOptions.map((option) => (
+                                                        <MenuItem key={option} onClick={() => handleStatusChange(option)}>
+                                                            {option}
+                                                        </MenuItem>
+                                                    ))}
+                                                </MenuList>
+                                            </Menu>
+                                        ) : (
+                                            <Input value={status} disabled />
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='mt-5'>
-                                <Typography>Fichier du jeu :</Typography>
-                                <div className="relative mb-4">
-                                    <label className="cursor-pointer flex flex-col items-center mt-2">
-                                        <ArrowUpTrayIcon className="h-10 w-10 text-gray-400" />
-                                        <input type="file" className="hidden" onChange={handleGameFileUpload} disabled={!editMode} />
-                                        <span className="text-gray-400">Télécharger le fichier du jeu</span>
-                                    </label>
-                                    {selectedGameFileName && <Typography className="mt-2">Fichier sélectionné: {selectedGameFileName}</Typography>}
+                                <div className='py-1'>
+                                    <div className='mt-5'>
+                                        <Typography>Image :</Typography>
+                                        <div className="relative mb-4">
+                                            {editMode ? (
+                                                <label
+                                                    className={`cursor-pointer flex flex-col items-center justify-center mt-2 h-full bg-cover bg-center bg-no-repeat ${editMode ? 'filter grayscale' : ''}`}
+                                                    style={{ backgroundImage: `url(${previewUrl})` }}
+                                                >
+                                                    <ArrowUpTrayIcon className="h-10 w-10 text-gray-400" />
+                                                    <input type="file" className="hidden" onChange={handleImageUpload} disabled={!editMode} />
+                                                    <span className="text-gray-400">Télécharger une image</span>
+                                                </label>
+                                            ) : (
+                                                <img src={previewUrl} alt="Aperçu" className="h-full object-cover" />
+                                            )}
+
+
+                                        </div>
+                                    </div>
+                                    <div className='mt-5'>
+                                        <Typography>Fichier du jeu :</Typography>
+                                        <div className="relative mb-4">
+                                            <label className="cursor-pointer flex flex-col items-center mt-2">
+                                                <ArrowUpTrayIcon className="h-10 w-10 text-gray-400" />
+                                                <input type="file" className="hidden" onChange={handleGameFileUpload} disabled={!editMode} />
+                                                <span className="text-gray-400">Télécharger le fichier du jeu</span>
+                                            </label>
+                                            {selectedGameFileName && <Typography className="mt-2">Fichier sélectionné: {selectedGameFileName}</Typography>}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className='mt-5'>
@@ -449,9 +463,15 @@ export function AdminSinglePageGame() {
                                     <div key={index} className="flex flex-col gap-2">
                                         <Typography>Étape {index + 1}</Typography>
                                         <div className='gap-2 w-full'>
-                                            <Input label="Titre de l'étape" color="orange" value={step.title} size="lg" onChange={(e) => handleStepTitleChange(index, e.target.value)} disabled={!editMode} />
-                                            <Input label="Contenu de l'étape" color="orange" value={step.content} size="lg" onChange={(e) => handleStepContentChange(index, e.target.value)} disabled={!editMode} />
-                                            <Input label="Temps (en minutes)" color="orange" value={step.time} size="lg" onChange={(e) => handleStepTimeChange(index, e.target.value)} disabled={!editMode} />
+                                            <div className="">
+                                                <Input label="Titre de l'étape" color="orange" value={step.title} size="lg" onChange={(e) => handleStepTitleChange(index, e.target.value)} disabled={!editMode} />
+                                            </div>
+                                            <div className="mt-5">
+                                                <Input label="Contenu de l'étape" color="orange" value={step.content} size="lg" onChange={(e) => handleStepContentChange(index, e.target.value)} disabled={!editMode} />
+                                            </div>
+                                            <div className="mt-5">
+                                                <Input label="Temps (en minutes)" color="orange" value={step.time} size="lg" onChange={(e) => handleStepTimeChange(index, e.target.value)} disabled={!editMode} />
+                                            </div>
                                         </div>
                                         {editMode && (
                                             <div className="flex gap-2 mt-2">
@@ -466,9 +486,15 @@ export function AdminSinglePageGame() {
                                     <div className="flex flex-col gap-2">
                                         <Typography variant="h6">Ajouter une étape :</Typography>
                                         <div className='gap-2 w-full'>
-                                            <Input label="Titre de l'étape" color="orange" value={newStepTitle} size="lg" onChange={(e) => setNewStepTitle(e.target.value)} />
-                                            <Input label="Contenu de l'étape" color="orange" value={newStepContent} size="lg" onChange={(e) => setNewStepContent(e.target.value)} />
-                                            <Input label="Temps (en minutes)" color="orange" value={newStepTime} size="lg" onChange={(e) => setNewStepTime(e.target.value)} />
+                                            <div className="">
+                                                <Input label="Titre de l'étape" color="orange" value={newStepTitle} size="lg" onChange={(e) => setNewStepTitle(e.target.value)} />
+                                            </div>
+                                            <div className="mt-5">
+                                                <Input label="Contenu de l'étape" color="orange" value={newStepContent} size="lg" onChange={(e) => setNewStepContent(e.target.value)} />
+                                            </div>
+                                            <div className="mt-5">
+                                                <Input label="Temps (en minutes)" color="orange" value={newStepTime} size="lg" onChange={(e) => setNewStepTime(e.target.value)} />
+                                            </div>
                                         </div>
                                         <div className="flex gap-2 mt-2">
                                             <Button variant="gradient" color="green" onClick={addStep}>
