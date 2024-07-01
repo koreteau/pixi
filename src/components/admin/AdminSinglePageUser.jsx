@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-
 import { useParams, Link, useNavigate } from 'react-router-dom';
-
 import { Button, Typography, Input, Switch, CardHeader, CardBody, Spinner } from '@material-tailwind/react';
 import { ArrowLeftIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import 'firebase/compat/firestore';
-
-
+import moment from 'moment-timezone';
 
 export function AdminSinglePageUser() {
     const { id } = useParams();
@@ -40,7 +36,7 @@ export function AdminSinglePageUser() {
                     setSelectedUser(userData);
                     setFullName(userData.fullName || '');
                     setUsername(userData.username || '');
-                    setBirthdate(userData.birthdate ? userData.birthdate : '');
+                    setBirthdate(userData.birthdate ? moment(userData.birthdate.toDate()).format('YYYY-MM-DD') : '');
                     setIsActive(userData.isActive || false);
                     setIsAdmin(userData.isAdmin || false);
                     setIsSeller(userData.isSeller || false);
@@ -101,10 +97,12 @@ export function AdminSinglePageUser() {
             return;
         }
 
+        const birthdateTimestamp = firebase.firestore.Timestamp.fromDate(moment.tz(birthdate, 'YYYY-MM-DD', 'UTC').toDate());
+
         const updatedData = {
             fullName,
             username,
-            birthdate,
+            birthdate: birthdateTimestamp,
             isActive,
             isAdmin,
             isSeller,
